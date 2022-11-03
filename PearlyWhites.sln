@@ -3,7 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.3.32901.215
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PearlyWhites.Host", "PearlyWhites.Host\PearlyWhites.Host.csproj", "{8A888813-3EFD-44FB-B3B8-38BC1D120370}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PearlyWhites.Host", "PearlyWhites.Host\PearlyWhites.Host.csproj", "{8A888813-3EFD-44FB-B3B8-38BC1D120370}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PearlyWhites.Models", "PearlyWhites.Models\PearlyWhites.Models.csproj", "{C9BD63F7-0545-473F-BFF1-5F1C78A9E06B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PearlyWhites.BL", "PearlyWhites.BL\PearlyWhites.BL.csproj", "{0E2C3C7F-5BE2-4A40-907C-CE2D5C3A9974}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PearlyWhites.DL", "PearlyWhites.DL\PearlyWhites.DL.csproj", "{6A72C53F-0980-4BB4-B77E-E12B544B303D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PearlyWhites.Caches", "PearlyWhites.Caches\PearlyWhites.Caches.csproj", "{CB08C758-4C05-40C4-9FF4-3747B5EF0881}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +23,22 @@ Global
 		{8A888813-3EFD-44FB-B3B8-38BC1D120370}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8A888813-3EFD-44FB-B3B8-38BC1D120370}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8A888813-3EFD-44FB-B3B8-38BC1D120370}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C9BD63F7-0545-473F-BFF1-5F1C78A9E06B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C9BD63F7-0545-473F-BFF1-5F1C78A9E06B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C9BD63F7-0545-473F-BFF1-5F1C78A9E06B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C9BD63F7-0545-473F-BFF1-5F1C78A9E06B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0E2C3C7F-5BE2-4A40-907C-CE2D5C3A9974}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0E2C3C7F-5BE2-4A40-907C-CE2D5C3A9974}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0E2C3C7F-5BE2-4A40-907C-CE2D5C3A9974}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0E2C3C7F-5BE2-4A40-907C-CE2D5C3A9974}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6A72C53F-0980-4BB4-B77E-E12B544B303D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6A72C53F-0980-4BB4-B77E-E12B544B303D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6A72C53F-0980-4BB4-B77E-E12B544B303D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6A72C53F-0980-4BB4-B77E-E12B544B303D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CB08C758-4C05-40C4-9FF4-3747B5EF0881}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CB08C758-4C05-40C4-9FF4-3747B5EF0881}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CB08C758-4C05-40C4-9FF4-3747B5EF0881}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CB08C758-4C05-40C4-9FF4-3747B5EF0881}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
