@@ -13,11 +13,13 @@ namespace PearlyWhites.Host.Extensions
             services.AddSingleton<IPatientRepository, PatientRepository>();
             services.AddSingleton<IToothRepository, ToothRepository>();
             services.AddSingleton<ITreatmentsRepository, TreatmentsRepository>();
+            services.AddSingleton<ITeethAndTreatmentRepository, TeethAndTreatmentRepository>();
             return services;
         }
         public static IServiceCollection RegisterServices(this IServiceCollection services)
         {
             services.AddSingleton<IPatientService, PatientService>();
+            services.AddSingleton<IToothService, ToothService>();
 
             return services;
         }

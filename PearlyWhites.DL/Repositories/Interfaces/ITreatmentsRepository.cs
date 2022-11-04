@@ -8,6 +8,6 @@ namespace PearlyWhites.DL.Repositories.Interfaces
         public Task<IEnumerable<Treatment>> GetAllTreatments();
         public Task<Treatment> Create(Treatment treatment);
         public Task<Treatment> UpdateTreatment(Treatment treatment);
-        public Task DeleteTreatmentById(int id);
+        public Task<bool> DeleteTreatmentById(int id);
     }
 }

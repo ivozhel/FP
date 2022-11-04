@@ -8,6 +8,7 @@ namespace PearlyWhites.Host.Validators
         public PatientValidations()
         {
             RuleFor(x => x.Age).GreaterThan(0).LessThan(200);
+            RuleFor(x => x.Id).NotEmpty().GreaterThan(0);
         }
     }
 }

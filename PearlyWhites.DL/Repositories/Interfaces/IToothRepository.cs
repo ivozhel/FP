@@ -8,6 +8,6 @@ namespace PearlyWhites.DL.Repositories.Interfaces
         public Task<Tooth> Create(Tooth tooth);
         public Task<Tooth> UpdateTooth(Tooth tooth);
         public Task<IEnumerable<Tooth>> GetPatientTeeth(int patientId);
-        public Task DeletePatientTeeth(int patientId);
+        public Task<bool> DeletePatientTeeth(int patientId);
     }
 }

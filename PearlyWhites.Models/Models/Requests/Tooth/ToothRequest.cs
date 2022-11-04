@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace PearlyWhites.Models.Models.Requests
+namespace PearlyWhites.Models.Models.Requests.Tooth
 {
     public record ToothRequest
     {

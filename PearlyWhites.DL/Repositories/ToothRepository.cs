@@ -25,8 +25,8 @@ namespace PearlyWhites.DL.Repositories
                 await using (var conn = new SqlConnection(_configuration.GetConnectionString("DefaultConnection")))
                 {
                     await conn.OpenAsync();
-                    var created = await conn.QueryFirstOrDefaultAsync<Tooth>("INSERT INTO Theet output INSERTED.* VALUES (@Name, @Position,@PatientId)",
-                        new { Name = tooth.Name, Position = tooth.Position, PatientId = tooth.PatientId });
+                    var created = await conn.QueryFirstOrDefaultAsync<Tooth>("INSERT INTO Theet output INSERTED.* VALUES (@Name, @Position,@PatientId,@IsDeleted)",
+                        new { Name = tooth.Name, Position = tooth.Position, PatientId = tooth.PatientId, IsDeleted = 0});
                     return created;
                 }
             }
@@ -43,7 +43,7 @@ namespace PearlyWhites.DL.Repositories
             {
                 await using (var conn = new SqlConnection(_configuration.GetConnectionString("DefaultConnection")))
                 {
-                    var query = "SELECT * FROM Theet WITH(NOLOCK) WHERE Id = @Id";
+                    var query = "SELECT * FROM Theet WITH(NOLOCK) WHERE Id = @Id AND IsDeleted = 0";
                     await conn.OpenAsync();
                     var tooth = await conn.QueryFirstOrDefaultAsync<Tooth>(query, new { Id = id });
                     return tooth;
@@ -64,7 +64,7 @@ namespace PearlyWhites.DL.Repositories
                 await using (var conn = new SqlConnection(_configuration.GetConnectionString("DefaultConnection")))
                 {
                     await conn.OpenAsync();
-                    var updatedTooth = await conn.QueryFirstOrDefaultAsync<Tooth>("UPDATE Theet SET Name = @Name, Position = @Position output INSERTED.* WHERE Id = @Id",
+                    var updatedTooth = await conn.QueryFirstOrDefaultAsync<Tooth>("UPDATE Theet SET Name = @Name, Position = @Position output INSERTED.* WHERE Id = @Id AND IsDeleted = 0",
                         new { Name = tooth.Name, Positin = tooth.Position});
                     return updatedTooth;
                 }
@@ -83,7 +83,7 @@ namespace PearlyWhites.DL.Repositories
             {
                 await using (var conn = new SqlConnection(_configuration.GetConnectionString("DefaultConnection")))
                 {
-                    var query = "SELECT * FROM Theet WITH(NOLOCK) WHERE PatientId = @PatientId";
+                    var query = "SELECT * FROM Theet WITH(NOLOCK) WHERE PatientId = @PatientId AND IsDeleted = 0";
                     await conn.OpenAsync();
 
                     return await conn.QueryAsync<Tooth>(query, new { PatientId = patientId });
@@ -95,17 +95,17 @@ namespace PearlyWhites.DL.Repositories
             }
             return null;
         }
-        public async Task DeletePatientTeeth(int patientId)
+        public async Task<bool> DeletePatientTeeth(int patientId)
         {
             try
             {
                 await using (var conn = new SqlConnection(_configuration.GetConnectionString("DefaultConnection")))
                 {
-                    var query = "DELETE FROM Theet WHERE PatientId = @patientId";
+                    var query = "UPDATE Theet SET IsDeleted = 1 WHERE PatientId = @patientId";
                     await conn.OpenAsync();
 
                     await conn.QueryAsync(query, new { patientId = patientId});
-                    return;
+                    return true;
                 }
             }
             catch (Exception e)
@@ -113,7 +113,7 @@ namespace PearlyWhites.DL.Repositories
                 _logger.LogError($"Error in {nameof(DeletePatientTeeth)} : {e.Message}");
             }
 
-            return;
+            return false;
         }
     }
 }

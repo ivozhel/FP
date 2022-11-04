@@ -75,5 +75,24 @@ namespace PearlyWhites.Host.Controllers
 
             return Ok(await _mediator.Send(new UpdateTreatmentCommand(treatment)));
         }
+
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [HttpDelete]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var toDel = await _mediator.Send(new GetByIdTreatmentCommand(id));
+            if (toDel is null)
+            {
+                return NotFound("Treatment with this id dose not exist");
+            }
+            var isDeleted = await _mediator.Send(new DeleteTreatmentCommand(id));
+            if (isDeleted)
+            {
+                return Ok("Succsesfully deleted treatment");
+            }
+            return BadRequest();
+        }
     }
 }

@@ -1,4 +1,5 @@
-﻿using PearlyWhites.Models.Models.Requests;
+﻿using PearlyWhites.Models.Models.Requests.Patient;
+using PearlyWhites.Models.Models.Requests.Tooth;
 using Swashbuckle.AspNetCore.Filters;
 
 namespace PearlyWhites.Host.Extensions.SwaggerExamples

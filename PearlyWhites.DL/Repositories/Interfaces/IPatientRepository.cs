@@ -9,6 +9,6 @@ namespace PearlyWhites.DL.Repositories.Interfaces
         public Task<IEnumerable<Patient>> GetAllPatients();
         public Task<Patient> Create (Patient patient);    
         public Task<Patient> UpdatePatient (Patient patient);
-        public Task DeletePatientById (int id);
+        public Task<bool> DeletePatientById (int id);
     }
 }

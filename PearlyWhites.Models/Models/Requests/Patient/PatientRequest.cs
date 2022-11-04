@@ -1,4 +1,6 @@
-﻿namespace PearlyWhites.Models.Models.Requests
+﻿using PearlyWhites.Models.Models.Requests.Tooth;
+
+namespace PearlyWhites.Models.Models.Requests.Patient
 {
     public record PatientRequest
     {
