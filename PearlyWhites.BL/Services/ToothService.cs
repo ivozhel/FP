@@ -48,21 +48,15 @@ namespace PearlyWhites.BL.Services
                 response.Message = "Tooth have no treatments";
             else
             {
-                foreach (var treatmentId in treatmentIds)
-                {
-                    var treatment = await _treatmentsRepository.GetTreatmentById(treatmentId);
-                    if (treatment is null)
-                        response.Message += $"Treatment with id {treatment} not found ";
-                    else
-                        tooth.Treatments.Add(treatment);
-                }
+                var tasks = treatmentIds.Select(x => GetTreatments(response, x, tooth));
+                await Task.WhenAll(tasks);
             }
 
             response.Message += "Tooth found";
             response.StatusCode = System.Net.HttpStatusCode.OK;
             response.Respone = tooth;
             return response;
-            
+
         }
 
         public async Task<BaseResponse<Tooth>> UpdateTooth(ToothUpdateRequest toothReq)
@@ -78,7 +72,7 @@ namespace PearlyWhites.BL.Services
                 response.Respone = null;
                 return response;
             }
-            
+
             var updated = await _toothRepository.UpdateTooth(tooth);
             if (updated is null)
             {
@@ -87,20 +81,32 @@ namespace PearlyWhites.BL.Services
                 return response;
             }
 
-            foreach (var treatmentId in toothReq.TreatmentIds)
-            {
-                var toothTreatment = await _teethAndTreatmentRepository.Create(treatmentId, updated.Id);
-                if (!toothTreatment)
-                {
-                    response.Message += $"Treatment with ID {treatmentId} not found";
-                }
-            }
+            var tasks = toothReq.TreatmentIds.Select(x => CreateTeethTreatments(response, x, updated));
+            await Task.WhenAll(tasks);
 
             response.Message += "Tooth updated";
             response.Respone = toUp;
             response.StatusCode = System.Net.HttpStatusCode.OK;
             return response;
 
+        }
+
+        private async Task GetTreatments(BaseResponse<Tooth> response, int treatmentId, Tooth tooth)
+        {
+            var treatment = await _treatmentsRepository.GetTreatmentById(treatmentId);
+            if (treatment is null)
+                response.Message += $"Treatment with id {treatment} not found ";
+            else
+                tooth.Treatments.Add(treatment);
+        }
+
+        private async Task CreateTeethTreatments(BaseResponse<Tooth> response,int treatmentId, Tooth updated)
+        {
+            var toothTreatment = await _teethAndTreatmentRepository.Create(treatmentId, updated.Id);
+            if (!toothTreatment)
+            {
+                response.Message += $"Treatment with ID {treatmentId} not found";
+            }
         }
     }
 }

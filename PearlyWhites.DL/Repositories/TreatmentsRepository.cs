@@ -4,6 +4,7 @@ using PearlyWhites.DL.Repositories.Interfaces;
 using PearlyWhites.Models.Models;
 using Microsoft.Extensions.Logging;
 using Dapper;
+using PearlyWhites.Models.Models.Requests;
 
 namespace PearlyWhites.DL.Repositories
 {
@@ -24,8 +25,8 @@ namespace PearlyWhites.DL.Repositories
                 await using (var conn = new SqlConnection(_configuration.GetConnectionString("DefaultConnection")))
                 {
                     await conn.OpenAsync();
-                    var created = await conn.QueryFirstOrDefaultAsync<Treatment>("INSERT INTO Treatments output INSERTED.* VALUES (@Name, @Price, @Description,@LastUpdated,@IsDeleted)",
-                        new { Name = treatment.Name, Price = treatment.Price, Description = treatment.Description, LastUpdated = DateTime.Now, IsDeleted = 0 });
+                    var created = await conn.QueryFirstOrDefaultAsync<Treatment>("INSERT INTO Treatments output INSERTED.* VALUES (@Name, @Price, @Description, @IsDeleted)",
+                        new { Name = treatment.Name, Price = treatment.Price, Description = treatment.Description, IsDeleted = 0 });
                     return created;
                 }
             }
@@ -105,8 +106,8 @@ namespace PearlyWhites.DL.Repositories
                 await using (var conn = new SqlConnection(_configuration.GetConnectionString("DefaultConnection")))
                 {
                     await conn.OpenAsync();
-                    var updatedPatient = await conn.QueryFirstOrDefaultAsync<Treatment>("UPDATE Treatments SET Name = @Name, Price = @Price, Description = @Description, LastUpdated = @LastUpdated  output INSERTED.* WHERE Id = @Id AND IsDeleted = 0",
-                        new {Id = treatment.Id, Name = treatment.Name, Price = treatment.Price, Description = treatment.Description, LastUpdated = DateTime.Now });
+                    var updatedPatient = await conn.QueryFirstOrDefaultAsync<Treatment>("UPDATE Treatments SET Name = @Name, Price = @Price, Description = @Description output INSERTED.* WHERE Id = @Id AND IsDeleted = 0",
+                        new {Id = treatment.Id, Name = treatment.Name, Price = treatment.Price, Description = treatment.Description });
                     return updatedPatient;
                 }
             }
@@ -115,6 +116,28 @@ namespace PearlyWhites.DL.Repositories
                 _logger.LogError($"Error in {nameof(UpdateTreatment)} : {e.Message}");
             }
             return null;
+        }
+
+        public async Task<bool> CheckIfTreatmentExists(TreatmentRequest treatmentRequest)
+        {
+            try
+            {
+                await using (var conn = new SqlConnection(_configuration.GetConnectionString("DefaultConnection")))
+                {
+                    var query = "SELECT * FROM Treatments WITH(NOLOCK) WHERE [Name] = @Name AND IsDeleted = 0";
+                    await conn.OpenAsync();
+                    var treatment = await conn.QueryFirstOrDefaultAsync<Treatment>(query, new { Name = treatmentRequest.Name });
+
+                    if (treatment is null)
+                        return false;
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"Error in {nameof(GetTreatmentById)} : {e.Message}");
+            }
+
+            return true;
         }
     }
 }

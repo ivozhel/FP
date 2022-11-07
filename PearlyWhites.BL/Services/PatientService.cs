@@ -1,5 +1,4 @@
-﻿using System.IO.Pipes;
-using AutoMapper;
+﻿using AutoMapper;
 using Microsoft.Extensions.Logging;
 using PearlyWhites.BL.Services.Interfaces;
 using PearlyWhites.DL.Repositories;
@@ -8,7 +7,6 @@ using PearlyWhites.Models.Models;
 using PearlyWhites.Models.Models.Requests.Patient;
 using PearlyWhites.Models.Models.Requests.Tooth;
 using PearlyWhites.Models.Models.Responses;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace PearlyWhites.BL.Services
 {
@@ -44,7 +42,7 @@ namespace PearlyWhites.BL.Services
                 return response;
             }
 
-            var tasks = patient.Teeth.Select(x => CreateTeeth(x,created,response));
+            var tasks = patient.Teeth.Select(x => CreateTeeth(x, created, response));
 
             var result = await Task.WhenAll(tasks);
 
@@ -111,15 +109,9 @@ namespace PearlyWhites.BL.Services
                 return response;
             }
 
-            foreach (var patient in patients)
-            {
-                var teeth = await _toothRepository.GetPatientTeeth(patient.Id);
-                if (teeth is null)
-                {
-                    response.Message += $"Teeth for Patient with id {patient.Id} not found; ";
-                }
-                patient.Teeth = teeth.ToList();
-            }
+            var tasks = patients.Select(x => GetTeethForPatient(x, response));
+            await Task.WhenAll(tasks);
+
             response.Message += "Patients loaded";
             response.StatusCode = System.Net.HttpStatusCode.OK;
             response.Respone = patients;
@@ -156,7 +148,7 @@ namespace PearlyWhites.BL.Services
                 response.Message = $"Teeth can not be loaded for Patient with ID {patient.Id}";
             }
 
-            response.Message += "Patients loaded";
+            response.Message += "Patient loaded";
             response.Respone = patient;
             response.StatusCode = System.Net.HttpStatusCode.OK;
 
@@ -199,23 +191,35 @@ namespace PearlyWhites.BL.Services
             {
                 return false;
             }
-            var tasks = tooth.TreatmentIds.Select(x => AddTreatments(response,x,createdTooth));
+            var tasks = tooth.TreatmentIds.Select(x => AddTreatments(response, x, createdTooth));
             await Task.WhenAll(tasks);
 
             created.Teeth.Add(createdTooth);
             return true;
         }
 
-        private async Task AddTreatments(BaseResponse<Patient> response,int treatmentId,Tooth createdTooth)
+        private async Task AddTreatments(BaseResponse<Patient> response, int treatmentId, Tooth createdTooth)
         {
             var treatment = await _treatmentRepository.GetTreatmentById(treatmentId);
             if (treatment is null)
             {
                 response.Message += $"Treatment with ID {treatmentId} dose not exist. Treatment did not add to tooth with ID {createdTooth.Id};";
                 response.Message += Environment.NewLine;
+                return;
             }
             createdTooth.Treatments.Add(treatment);
             await _tethAndTreatmentRepository.Create(treatmentId, createdTooth.Id);
+        }
+
+        private async Task GetTeethForPatient(Patient patient, BaseResponse<IEnumerable<Patient>> response)
+        {
+            var teeth = await _toothRepository.GetPatientTeeth(patient.Id);
+            if (teeth is null)
+            {
+                response.Message += $"Teeth for Patient with id {patient.Id} not found; ";
+                return;
+            }
+            patient.Teeth = teeth.ToList();
         }
     }
 }

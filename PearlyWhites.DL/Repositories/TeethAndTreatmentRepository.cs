@@ -46,8 +46,8 @@ namespace PearlyWhites.DL.Repositories
                 await using (var conn = new SqlConnection(_configuration.GetConnectionString("DefaultConnection")))
                 {
                     await conn.OpenAsync();
-                    var created = await conn.QueryFirstOrDefaultAsync<Treatment>("INSERT INTO Teeth_Treatments output INSERTED.* VALUES (@ToothId, @TreatmentId,@IsDeleted)",
-                        new { ToothId = toothId, TreatmentId = treatmentId, IsDeleted = 0 });
+                    var created = await conn.QueryFirstOrDefaultAsync<Treatment>("INSERT INTO Teeth_Treatments output INSERTED.* VALUES (@ToothId, @TreatmentId,@IsDeleted, @Date)",
+                        new { ToothId = toothId, TreatmentId = treatmentId, IsDeleted = 0, Date = DateTime.Now });
                     if (created is not null)
                     {
                         return true;
