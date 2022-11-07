@@ -79,5 +79,24 @@ namespace PearlyWhites.DL.Repositories
             }
             return null;
         }
+        public async Task<IEnumerable<int>> GetTreatmentDayliReport(DateTime date)
+        {
+            try
+            {
+                await using (var conn = new SqlConnection(_configuration.GetConnectionString("DefaultConnection")))
+                {
+                    var query = "SELECT TreatmentId FROM Teeth_Treatments t WITH(NOLOCK) WHERE cast(t.[Date] as date) = @Date";
+                    await conn.OpenAsync();
+                    var result = await conn.QueryAsync<int>(query, new { Date = date.Date });
+                    return result;
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"Error in {nameof(GetTreatmentIdsForTooth)} : {e.Message}");
+            }
+            return null;
+        }
+
     }
 }

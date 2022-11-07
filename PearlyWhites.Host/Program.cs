@@ -1,14 +1,15 @@
 using FluentValidation;
 using FluentValidation.AspNetCore;
+using MediatR;
+using PearlyWhites.BL.CommandHandlers;
+using PearlyWhites.BL.Services.HostedServices;
 using PearlyWhites.Host.Extensions;
+using PearlyWhites.Host.Extensions.SwaggerExamples;
+using PearlyWhites.Host.Middleware;
+using PearlyWhites.Models.Models.Configurations;
 using Serilog;
 using Serilog.Sinks.SystemConsole.Themes;
 using Swashbuckle.AspNetCore.Filters;
-using Microsoft.OpenApi;
-using PearlyWhites.Host.Extensions.SwaggerExamples;
-using MediatR;
-using PearlyWhites.Models.Models.MediatRCommands.Treatments;
-using PearlyWhites.BL.CommandHandlers;
 
 var logger = new LoggerConfiguration()
     .Enrich.FromLogContext()
@@ -23,6 +24,7 @@ builder.Services.AddValidatorsFromAssemblyContaining(typeof(Program));
 builder.Logging.AddSerilog(logger);
 
 builder.Services.AddMediatR(typeof(AddTreatmentHandler).Assembly);
+builder.Services.AddHealthChecks();
 
 // Add services to the container.
 builder.Services.RegisterRepos()
@@ -37,7 +39,12 @@ builder.Services.AddSwaggerGen(c =>
 {
     c.ExampleFilters(); 
 });
-builder.Services.AddSwaggerExamplesFromAssemblyOf<PatientSwaggerExample>();  
+builder.Services.AddSwaggerExamplesFromAssemblyOf<PatientSwaggerExample>();
+
+builder.Services.Configure<KafkaConfiguration>(
+    builder.Configuration.GetSection(nameof(KafkaConfiguration)));
+
+builder.Services.AddHostedService<ReportConsumeHostedService>();
 
 var app = builder.Build();
 
@@ -52,6 +59,8 @@ app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
+app.RegisterHealthChecks();
 app.MapControllers();
+app.UseMiddleware<ErrorHandlerMiddleware>();
 
 app.Run();
