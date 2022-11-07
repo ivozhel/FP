@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="12.0.0" />
+    <PackageReference Include="MediatR" Version="11.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="6.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PearlyWhites.Caches\PearlyWhites.Caches.csproj" />
+    <ProjectReference Include="..\PearlyWhites.DL\PearlyWhites.DL.csproj" />
+    <ProjectReference Include="..\PearlyWhites.Models\PearlyWhites.Models.csproj" />
+  </ItemGroup>
+
+</Project>
