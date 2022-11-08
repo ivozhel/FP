@@ -19,6 +19,7 @@ namespace PearlyWhites.Host.Controllers
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [HttpGet("GetPatients")]
         public async Task<IActionResult> Get()
         {
@@ -33,12 +34,11 @@ namespace PearlyWhites.Host.Controllers
         public async Task<IActionResult> Get(int id)
         {
             var response = await _patientService.GetPatientById(id);
-
             return StatusCode((int)response.StatusCode, new { response.Respone, response.Message });
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [SwaggerRequestExample(typeof(PatientRequest),typeof(PatientSwaggerExample))]
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] PatientRequest patient)

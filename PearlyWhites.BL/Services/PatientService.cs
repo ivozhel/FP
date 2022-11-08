@@ -17,15 +17,13 @@ namespace PearlyWhites.BL.Services
         private readonly IMapper _mapper;
         private readonly ITeethAndTreatmentRepository _tethAndTreatmentRepository;
         private readonly ITreatmentsRepository _treatmentRepository;
-        private ILogger<TreatmentsRepository> _logger;
-        public PatientService(IPatientRepository patientRepository, IMapper mapper, IToothRepository toothRepository, ITeethAndTreatmentRepository tethAndTreatmentRepository, ITreatmentsRepository treatmentRepository, ILogger<TreatmentsRepository> logger)
+        public PatientService(IPatientRepository patientRepository, IMapper mapper, IToothRepository toothRepository, ITeethAndTreatmentRepository tethAndTreatmentRepository, ITreatmentsRepository treatmentRepository)
         {
             _patientRepository = patientRepository;
             _mapper = mapper;
             _toothRepository = toothRepository;
             _tethAndTreatmentRepository = tethAndTreatmentRepository;
             _treatmentRepository = treatmentRepository;
-            _logger = logger;
         }
 
         public async Task<BaseResponse<Patient>> Create(PatientRequest patient)
@@ -37,7 +35,7 @@ namespace PearlyWhites.BL.Services
 
             if (created is null)
             {
-                response.StatusCode = System.Net.HttpStatusCode.BadRequest;
+                response.StatusCode = System.Net.HttpStatusCode.InternalServerError;
                 response.Message = "Something went wrong Patient was not created try again";
                 return response;
             }
@@ -81,6 +79,7 @@ namespace PearlyWhites.BL.Services
             }
             var isPatientTeethDeleted = await _toothRepository.DeletePatientTeeth(id);
             var isPatientDeleted = await _patientRepository.DeletePatientById(id);
+
             if (isPatientDeleted && isPatientTeethDeleted)
             {
                 response.Respone = true;
@@ -91,7 +90,7 @@ namespace PearlyWhites.BL.Services
 
             response.Message = "Something went wrong";
             response.Respone = false;
-            response.StatusCode = System.Net.HttpStatusCode.BadRequest;
+            response.StatusCode = System.Net.HttpStatusCode.InternalServerError;
             return response;
         }
 
@@ -103,7 +102,7 @@ namespace PearlyWhites.BL.Services
 
             if (patients is null)
             {
-                response.StatusCode = System.Net.HttpStatusCode.BadRequest;
+                response.StatusCode = System.Net.HttpStatusCode.InternalServerError;
                 response.Message = "Something went wrong";
                 response.Respone = null;
                 return response;
@@ -172,7 +171,7 @@ namespace PearlyWhites.BL.Services
             if (updated is null)
             {
                 response.Message = "Something went wrong";
-                response.StatusCode = System.Net.HttpStatusCode.BadRequest;
+                response.StatusCode = System.Net.HttpStatusCode.InternalServerError;
                 return response;
             }
             response.Message = "Patient updated";

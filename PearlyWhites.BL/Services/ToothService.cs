@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using PearlyWhites.BL.Services.Interfaces;
-using PearlyWhites.DL.Repositories;
 using PearlyWhites.DL.Repositories.Interfaces;
 using PearlyWhites.Models.Models;
 using PearlyWhites.Models.Models.Requests.Tooth;
