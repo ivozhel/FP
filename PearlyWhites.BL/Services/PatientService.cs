@@ -171,7 +171,7 @@ namespace PearlyWhites.BL.Services
             if (updated is null)
             {
                 response.Message = "Something went wrong";
-                response.StatusCode = System.Net.HttpStatusCode.BadRequest;
+                response.StatusCode = System.Net.HttpStatusCode.InternalServerError;
                 return response;
             }
             response.Message = "Patient updated";

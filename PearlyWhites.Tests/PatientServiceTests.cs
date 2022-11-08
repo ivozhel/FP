@@ -5,7 +5,6 @@ using PearlyWhites.DL.Repositories.Interfaces;
 using PearlyWhites.Host.AutoMapper;
 using PearlyWhites.Models.Models;
 using PearlyWhites.Models.Models.Requests.Patient;
-using PearlyWhites.Models.Models.Responses;
 
 namespace PearlyWhites.Tests
 {
@@ -132,6 +131,21 @@ namespace PearlyWhites.Tests
             //assert
             Assert.NotNull(result);
             Assert.Equal(System.Net.HttpStatusCode.NotFound, result.StatusCode);
+        }
+        [Fact]
+        public async Task Patient_GetById_BadRequest()
+        {
+            //setup
+
+            //inject
+            var service = new PatientService(_patientRepository.Object, _mapper, _toothRepository.Object, _teethAndTreatmentRepository.Object, _treatmentRepository.Object);
+
+            //act
+            var result = await service.GetPatientById(0);
+
+            //assert
+            Assert.NotNull(result);
+            Assert.Equal(System.Net.HttpStatusCode.BadRequest, result.StatusCode);
         }
         [Fact]
         public async Task Patient_Create()
@@ -262,6 +276,67 @@ namespace PearlyWhites.Tests
             Assert.NotNull(result);
             Assert.Equal(System.Net.HttpStatusCode.InternalServerError, result.StatusCode);
             Assert.False(result.Respone);
+        }
+        [Fact]
+        public async Task Patient_Update()
+        {
+            //setup
+            var expectedID = 3;
+            var patientRequest = new PatientUpdateRequest()
+            {
+                Name = "Test",
+                Age = 20
+            };
+            
+            _patientRepository.Setup(x => x.GetPatientById(It.IsAny<int>())).ReturnsAsync(() => _patients.FirstOrDefault(x => x.Id == expectedID));
+
+            _patientRepository.Setup(x => x.UpdatePatient(It.IsAny<Patient>())).ReturnsAsync(new Patient() { Name = patientRequest.Name, Age = patientRequest.Age});
+
+            //infect 
+            var service = new PatientService(_patientRepository.Object, _mapper, _toothRepository.Object, _teethAndTreatmentRepository.Object, _treatmentRepository.Object);
+
+            //act
+            var result = await service.UpdatePatient(patientRequest);
+            
+            //assert
+            Assert.NotNull(result);
+            Assert.Equal(patientRequest.Name, result.Respone.Name);
+            Assert.Equal(patientRequest.Age, result.Respone.Age);
+            Assert.Equal(System.Net.HttpStatusCode.OK, result.StatusCode);
+        }
+        [Fact]
+        public async Task Patient_Update_NotFound()
+        {
+            //setup
+
+            _patientRepository.Setup(x => x.GetPatientById(It.IsAny<int>())).ReturnsAsync((Patient)null);
+
+            //infect 
+            var service = new PatientService(_patientRepository.Object, _mapper, _toothRepository.Object, _teethAndTreatmentRepository.Object, _treatmentRepository.Object);
+
+            //act
+            var result = await service.UpdatePatient(new PatientUpdateRequest() { Id = It.IsAny<int>() });
+
+            //assert
+            Assert.NotNull(result);
+            Assert.Equal(System.Net.HttpStatusCode.NotFound, result.StatusCode);
+        }
+        [Fact]
+        public async Task Patient_Update_Error()
+        {
+            //setup
+            _patientRepository.Setup(x => x.GetPatientById(It.IsAny<int>())).ReturnsAsync(new Patient());
+            _patientRepository.Setup(x => x.UpdatePatient(It.IsAny<Patient>())).ReturnsAsync((Patient)null);
+
+            //infect 
+            var service = new PatientService(_patientRepository.Object, _mapper, _toothRepository.Object, _teethAndTreatmentRepository.Object, _treatmentRepository.Object);
+
+            //act
+            var result = await service.UpdatePatient(new PatientUpdateRequest() { Id = It.IsAny<int>() });
+
+            //assert
+            Assert.NotNull(result);
+            Assert.Equal(System.Net.HttpStatusCode.InternalServerError, result.StatusCode);
         }
     }
 }
