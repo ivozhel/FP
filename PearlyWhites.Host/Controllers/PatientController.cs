@@ -39,12 +39,12 @@ namespace PearlyWhites.Host.Controllers
 
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        [SwaggerRequestExample(typeof(PatientRequest),typeof(PatientSwaggerExample))]
+        [SwaggerRequestExample(typeof(PatientRequest), typeof(PatientSwaggerExample))]
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] PatientRequest patient)
         {
             var response = await _patientService.Create(patient);
-            return StatusCode((int)response.StatusCode,new { response.Respone, response.Message });
+            return StatusCode((int)response.StatusCode, new { response.Respone, response.Message });
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -53,8 +53,8 @@ namespace PearlyWhites.Host.Controllers
         [HttpDelete]
         public async Task<IActionResult> Delete(int id)
         {
-            var response = await _patientService.DeletePatientById(id);
-            return StatusCode((int)response.StatusCode,response.Message);
+            var response = await _patientService.Delete(id);
+            return StatusCode((int)response.StatusCode, response.Message);
         }
 
         [HttpPut]
@@ -63,7 +63,7 @@ namespace PearlyWhites.Host.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Update(PatientUpdateRequest patient)
         {
-            var response = await _patientService.UpdatePatient(patient);
+            var response = await _patientService.Update(patient);
             return StatusCode((int)response.StatusCode, response.Message);
         }
     }

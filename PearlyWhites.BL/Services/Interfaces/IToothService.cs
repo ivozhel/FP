@@ -7,6 +7,6 @@ namespace PearlyWhites.BL.Services.Interfaces
     public interface IToothService
     {
         public Task<BaseResponse<Tooth>> GetToothById(int id);
-        public Task<BaseResponse<Tooth>> UpdateTooth(ToothUpdateRequest toothReq);
+        public Task<BaseResponse<Tooth>> Update(ToothUpdateRequest toothReqq, string clinicName);
     }
 }

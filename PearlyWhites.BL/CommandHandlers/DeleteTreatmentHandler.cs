@@ -3,6 +3,7 @@ using PearlyWhites.DL.Repositories.Interfaces;
 using PearlyWhites.Models.Models;
 using PearlyWhites.Models.Models.MediatRCommands.Treatments;
 using PearlyWhites.Models.Models.Responses;
+using PearlyWhites.Models.Models.Tools;
 
 namespace PearlyWhites.BL.CommandHandlers
 {
@@ -21,7 +22,7 @@ namespace PearlyWhites.BL.CommandHandlers
             var toDel = await _treatmentsRepository.GetTreatmentById(request.treatmentId);
             if (toDel is null)
             {
-                response.Message = "Treatment with this id dose not exist";
+                response.Message = ResponseMessages.NotFound(typeof(Treatment).Name);
                 response.StatusCode = System.Net.HttpStatusCode.NotFound;
                 return response;
             }
@@ -30,12 +31,12 @@ namespace PearlyWhites.BL.CommandHandlers
             if (isDeleted)
             {
                 response.StatusCode = System.Net.HttpStatusCode.OK;
-                response.Message = "Succsesfully deleted treatment";
+                response.Message = ResponseMessages.Success;
                 return response;
             }
 
-            response.StatusCode = System.Net.HttpStatusCode.BadRequest;
-            response.Message = "Something went wrong try again";
+            response.StatusCode = System.Net.HttpStatusCode.InternalServerError;
+            response.Message = ResponseMessages.SomethingWentWrong;
             return response;
         }
     }

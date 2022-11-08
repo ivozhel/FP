@@ -64,8 +64,8 @@ namespace PearlyWhites.DL.Repositories
                 await using (var conn = new SqlConnection(_configuration.GetConnectionString("DefaultConnection")))
                 {
                     await conn.OpenAsync();
-                    var updatedTooth = await conn.QueryFirstOrDefaultAsync<Tooth>("UPDATE Theet SET Name = @Name, Position = @Position output INSERTED.* WHERE Id = @Id AND IsDeleted = 0",
-                        new { Name = tooth.Name, Positin = tooth.Position});
+                    var updatedTooth = await conn.QueryFirstOrDefaultAsync<Tooth>("UPDATE Theet SET Name = @Name output INSERTED.* WHERE Id = @Id AND IsDeleted = 0",
+                        new { Name = tooth.Name, Id = tooth.Id});
                     return updatedTooth;
                 }
             }

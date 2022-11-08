@@ -3,6 +3,7 @@ using PearlyWhites.DL.Repositories.Interfaces;
 using PearlyWhites.Models.Models;
 using PearlyWhites.Models.Models.MediatRCommands.Treatments;
 using PearlyWhites.Models.Models.Responses;
+using PearlyWhites.Models.Models.Tools;
 
 namespace PearlyWhites.BL.CommandHandlers
 {
@@ -23,19 +24,19 @@ namespace PearlyWhites.BL.CommandHandlers
             if (toUp is null)
             {
                 response.StatusCode = System.Net.HttpStatusCode.NotFound;
-                response.Message = $"Treatment with id {request.treatment.Id} dose not exist";
+                response.Message = ResponseMessages.NotFound(typeof(Treatment).Name);
                 return response;
             }
 
             var updated = await _treatmentsRepository.UpdateTreatment(request.treatment);
             if (updated is null)
             {
-                response.StatusCode = System.Net.HttpStatusCode.BadRequest;
-                response.Message = "Something went wrong try again";
+                response.StatusCode = System.Net.HttpStatusCode.InternalServerError;
+                response.Message = ResponseMessages.SomethingWentWrong;
                 return response;
             }
 
-            response.Message = "Treatment succsessfully updated";
+            response.Message = ResponseMessages.Success;
             response.StatusCode = System.Net.HttpStatusCode.OK;
             response.Respone = updated;
             return response;

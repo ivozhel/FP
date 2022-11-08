@@ -4,7 +4,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using PearlyWhites.DL.Repositories.Interfaces;
 using PearlyWhites.Models.Models;
-using PearlyWhites.Models.Models.Requests;
 
 namespace PearlyWhites.DL.Repositories
 {
@@ -27,7 +26,7 @@ namespace PearlyWhites.DL.Repositories
                 {
                     await conn.OpenAsync();
                     var created = await conn.QueryFirstOrDefaultAsync<Report>("INSERT INTO DayliReport output INSERTED.* VALUES (@Name, @Total,@Date)",
-                        new { Name = report.Name, Total = report.Total, Date = report.Date});
+                        new { Name = report.Name, Total = report.Total, Date = report.Date });
                     return created;
                 }
             }
@@ -38,10 +37,6 @@ namespace PearlyWhites.DL.Repositories
             return null;
         }
 
-        public Task<IEnumerable<Report>> GetAllReports()
-        {
-            throw new NotImplementedException();
-        }
         public async Task<bool> CheckIfExists(string name, DateTime date)
         {
             try
@@ -62,6 +57,26 @@ namespace PearlyWhites.DL.Repositories
             }
 
             return true;
+        }
+        public async Task<IEnumerable<Report>> GetAllReportForDate(DateTime from, DateTime to)
+        {
+            try
+            {
+                await using (var conn = new SqlConnection(_configuration.GetConnectionString("DefaultConnection")))
+                {
+                    var query = "SELECT * FROM DayliReport WITH(NOLOCK) WHERE [Date] BETWEEN @From AND @To";
+                    await conn.OpenAsync();
+                    var reports = await conn.QueryAsync<Report>(query, new { From = from, To = to });
+                    return reports;
+
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"Error in {nameof(GetAllReportForDate)} : {e.Message}");
+            }
+
+            return Enumerable.Empty<Report>();
         }
     }
 }

@@ -3,6 +3,7 @@ using PearlyWhites.Caches.KafkaService;
 using PearlyWhites.DL.Repositories.Interfaces;
 using PearlyWhites.Models.Models.Configurations;
 using PearlyWhites.Models.Models.KafkaModels;
+using PearlyWhites.Models.Models.Responses;
 
 namespace PearlyWhites.BL.Services.Producers
 {
@@ -18,26 +19,31 @@ namespace PearlyWhites.BL.Services.Producers
             _reportRepository = reportRepository;
         }
 
-        public async Task<string> DailyReport(DateTime date)
+        public async Task<BaseResponse<string>> DailyReport(DateTime date, string address)
         {
+            var response = new BaseResponse<string>();
             var report = new KafkaReport()
             {
                 Id = Guid.NewGuid()
             };
-            var dayliTreatments = await _teethAndTreatmentRepository.GetTreatmentDayliReport(date);
+            var dayliTreatments = await _teethAndTreatmentRepository.GetTreatmentDayliReport(date,address);
 
             report.Date = date;
-            report.Name = "";
+            report.Name = address;
             report.DailyTreatmentIds = dayliTreatments;
 
             var ifAlreadySend = await _reportRepository.CheckIfExists(report.Name, report.Date);
             if (ifAlreadySend)
             {
-                return "Report already send";
+                response.Respone = "Report already send";
+                response.StatusCode = System.Net.HttpStatusCode.Forbidden;
+                return response;
             }
 
             await base.Produce( report, report.Id);
-            return "Report succesfully send";
+            response.Respone = "Report succesfully send";
+            response.StatusCode = System.Net.HttpStatusCode.OK;
+            return response;
         }
 
     }

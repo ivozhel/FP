@@ -3,6 +3,7 @@ using PearlyWhites.DL.Repositories.Interfaces;
 using PearlyWhites.Models.Models;
 using PearlyWhites.Models.Models.MediatRCommands.Treatments;
 using PearlyWhites.Models.Models.Responses;
+using PearlyWhites.Models.Models.Tools;
 
 namespace PearlyWhites.BL.CommandHandlers
 {
@@ -24,20 +25,13 @@ namespace PearlyWhites.BL.CommandHandlers
 
             if (treatments is null)
             {
-                response.Message = "Something went wrong try again";
-                response.StatusCode = System.Net.HttpStatusCode.BadRequest;
-                return response;
-            }
-
-            if (count == 0)
-            {
-                response.Message = "There are no treatments found";
-                response.StatusCode = System.Net.HttpStatusCode.NotFound;
+                response.Message = ResponseMessages.SomethingWentWrong;
+                response.StatusCode = System.Net.HttpStatusCode.InternalServerError;
                 return response;
             }
 
             response.StatusCode = System.Net.HttpStatusCode.OK;
-            response.Message = "Treatments loaded";
+            response.Message = ResponseMessages.Success;
             response.Respone = treatments;
             return response;
         }

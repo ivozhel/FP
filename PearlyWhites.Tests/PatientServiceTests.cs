@@ -211,7 +211,7 @@ namespace PearlyWhites.Tests
             var service = new PatientService(_patientRepository.Object, _mapper, _toothRepository.Object, _teethAndTreatmentRepository.Object, _treatmentRepository.Object);
 
             //act
-            var result = await service.DeletePatientById(deleteId);
+            var result = await service.Delete(deleteId);
 
 
             Assert.NotNull(result);
@@ -231,7 +231,7 @@ namespace PearlyWhites.Tests
             var service = new PatientService(_patientRepository.Object, _mapper, _toothRepository.Object, _teethAndTreatmentRepository.Object, _treatmentRepository.Object);
 
             //act
-            var result = await service.DeletePatientById(deleteId);
+            var result = await service.Delete(deleteId);
 
 
             Assert.NotNull(result);
@@ -249,7 +249,7 @@ namespace PearlyWhites.Tests
             var service = new PatientService(_patientRepository.Object, _mapper, _toothRepository.Object, _teethAndTreatmentRepository.Object, _treatmentRepository.Object);
 
             //act
-            var result = await service.DeletePatientById(deleteId);
+            var result = await service.Delete(deleteId);
 
 
             Assert.NotNull(result);
@@ -270,7 +270,7 @@ namespace PearlyWhites.Tests
             var service = new PatientService(_patientRepository.Object, _mapper, _toothRepository.Object, _teethAndTreatmentRepository.Object, _treatmentRepository.Object);
 
             //act
-            var result = await service.DeletePatientById(deleteId);
+            var result = await service.Delete(deleteId);
   
             //assert
             Assert.NotNull(result);
@@ -296,7 +296,7 @@ namespace PearlyWhites.Tests
             var service = new PatientService(_patientRepository.Object, _mapper, _toothRepository.Object, _teethAndTreatmentRepository.Object, _treatmentRepository.Object);
 
             //act
-            var result = await service.UpdatePatient(patientRequest);
+            var result = await service.Update(patientRequest);
             
             //assert
             Assert.NotNull(result);
@@ -315,7 +315,7 @@ namespace PearlyWhites.Tests
             var service = new PatientService(_patientRepository.Object, _mapper, _toothRepository.Object, _teethAndTreatmentRepository.Object, _treatmentRepository.Object);
 
             //act
-            var result = await service.UpdatePatient(new PatientUpdateRequest() { Id = It.IsAny<int>() });
+            var result = await service.Update(new PatientUpdateRequest() { Id = It.IsAny<int>() });
 
             //assert
             Assert.NotNull(result);
@@ -332,7 +332,7 @@ namespace PearlyWhites.Tests
             var service = new PatientService(_patientRepository.Object, _mapper, _toothRepository.Object, _teethAndTreatmentRepository.Object, _treatmentRepository.Object);
 
             //act
-            var result = await service.UpdatePatient(new PatientUpdateRequest() { Id = It.IsAny<int>() });
+            var result = await service.Update(new PatientUpdateRequest() { Id = It.IsAny<int>() });
 
             //assert
             Assert.NotNull(result);
