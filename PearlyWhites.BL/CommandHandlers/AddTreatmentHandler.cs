@@ -4,6 +4,7 @@ using PearlyWhites.DL.Repositories.Interfaces;
 using PearlyWhites.Models.Models;
 using PearlyWhites.Models.Models.MediatRCommands.Treatments;
 using PearlyWhites.Models.Models.Responses;
+using PearlyWhites.Models.Models.Tools;
 
 namespace PearlyWhites.BL.CommandHandlers
 {
@@ -23,7 +24,7 @@ namespace PearlyWhites.BL.CommandHandlers
             var checkIfExists = await _treatmentsRepository.CheckIfTreatmentExists(request.treatment);
             if (checkIfExists)
             {
-                response.Message = "Treatment already exists";
+                response.Message = ResponseMessages.AlreadyExists(typeof(Treatment).Name);
                 response.StatusCode = System.Net.HttpStatusCode.BadRequest;
                 return response;
             }
@@ -33,12 +34,12 @@ namespace PearlyWhites.BL.CommandHandlers
 
             if (created is null)
             {
-                response.Message = "Something went wrong try again";
-                response.StatusCode = System.Net.HttpStatusCode.BadRequest;
+                response.Message = ResponseMessages.SomethingWentWrong;
+                response.StatusCode = System.Net.HttpStatusCode.InternalServerError;
                 return response;
             }
 
-            response.Message = "Treatment succsessfully created";
+            response.Message = ResponseMessages.Success;
             response.StatusCode = System.Net.HttpStatusCode.OK;
             response.Respone = created;
             return response;

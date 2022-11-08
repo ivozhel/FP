@@ -39,15 +39,15 @@ namespace PearlyWhites.DL.Repositories
             return false;
         }
 
-        public async Task<bool> Create(int treatmentId, int toothId)
+        public async Task<bool> Create(int treatmentId, int toothId, string clinicName)
         {
             try
             {
                 await using (var conn = new SqlConnection(_configuration.GetConnectionString("DefaultConnection")))
                 {
                     await conn.OpenAsync();
-                    var created = await conn.QueryFirstOrDefaultAsync<Treatment>("INSERT INTO Teeth_Treatments output INSERTED.* VALUES (@ToothId, @TreatmentId,@IsDeleted, @Date)",
-                        new { ToothId = toothId, TreatmentId = treatmentId, IsDeleted = 0, Date = DateTime.Now });
+                    var created = await conn.QueryFirstOrDefaultAsync<Treatment>("INSERT INTO Teeth_Treatments output INSERTED.* VALUES (@ToothId, @TreatmentId,@IsDeleted, @Date, @ClinicName)",
+                        new { ToothId = toothId, TreatmentId = treatmentId, IsDeleted = 0, Date = DateTime.Now, ClinicName = clinicName });
                     if (created is not null)
                     {
                         return true;
@@ -79,15 +79,15 @@ namespace PearlyWhites.DL.Repositories
             }
             return null;
         }
-        public async Task<IEnumerable<int>> GetTreatmentDayliReport(DateTime date)
+        public async Task<IEnumerable<int>> GetTreatmentDayliReport(DateTime date, string clincName)
         {
             try
             {
                 await using (var conn = new SqlConnection(_configuration.GetConnectionString("DefaultConnection")))
                 {
-                    var query = "SELECT TreatmentId FROM Teeth_Treatments t WITH(NOLOCK) WHERE cast(t.[Date] as date) = @Date";
+                    var query = "SELECT TreatmentId FROM Teeth_Treatments t WITH(NOLOCK) WHERE cast(t.[Date] as date) = @Date AND ClinicName = @ClinicName";
                     await conn.OpenAsync();
-                    var result = await conn.QueryAsync<int>(query, new { Date = date.Date });
+                    var result = await conn.QueryAsync<int>(query, new { Date = date.Date, ClinicName = clincName });
                     return result;
                 }
             }

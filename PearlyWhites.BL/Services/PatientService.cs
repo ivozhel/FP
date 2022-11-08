@@ -1,12 +1,11 @@
 ﻿using AutoMapper;
-using Microsoft.Extensions.Logging;
 using PearlyWhites.BL.Services.Interfaces;
-using PearlyWhites.DL.Repositories;
 using PearlyWhites.DL.Repositories.Interfaces;
 using PearlyWhites.Models.Models;
 using PearlyWhites.Models.Models.Requests.Patient;
 using PearlyWhites.Models.Models.Requests.Tooth;
 using PearlyWhites.Models.Models.Responses;
+using PearlyWhites.Models.Models.Tools;
 
 namespace PearlyWhites.BL.Services
 {
@@ -36,7 +35,7 @@ namespace PearlyWhites.BL.Services
             if (created is null)
             {
                 response.StatusCode = System.Net.HttpStatusCode.InternalServerError;
-                response.Message = "Something went wrong Patient was not created try again";
+                response.Message = ResponseMessages.SomethingWentWrong;
                 return response;
             }
 
@@ -46,26 +45,26 @@ namespace PearlyWhites.BL.Services
 
             if (result.Any(x => x == false))
             {
-                await DeletePatientById(created.Id);
+                await Delete(created.Id);
                 response.StatusCode = System.Net.HttpStatusCode.BadRequest;
-                response.Message = "Something went wrong Patient was not created try again";
+                response.Message = ResponseMessages.SomethingWentWrong;
                 return response;
             }
 
             response.StatusCode = System.Net.HttpStatusCode.OK;
-            response.Message += "Patient created succsessfuly";
+            response.Message += ResponseMessages.Successfull(nameof(Create),typeof(Patient).Name);
             response.Respone = created;
             return response;
         }
 
-        public async Task<BaseResponse<bool>> DeletePatientById(int id)
+        public async Task<BaseResponse<bool>> Delete(int id)
         {
             var response = new BaseResponse<bool>();
 
             if (id <= 0)
             {
                 response.StatusCode = System.Net.HttpStatusCode.BadRequest;
-                response.Message = "Id cannot be 0 or less";
+                response.Message = ResponseMessages.FalseId;
                 return response;
             }
 
@@ -73,7 +72,7 @@ namespace PearlyWhites.BL.Services
             if (patientToDelete is null)
             {
                 response.StatusCode = System.Net.HttpStatusCode.NotFound;
-                response.Message = "Patient not found";
+                response.Message = ResponseMessages.NotFound(typeof(Patient).Name);
                 response.Respone = false;
                 return response;
             }
@@ -83,12 +82,12 @@ namespace PearlyWhites.BL.Services
             if (isPatientDeleted && isPatientTeethDeleted)
             {
                 response.Respone = true;
-                response.Message = "Succsessfully deleted patient";
+                response.Message = ResponseMessages.Successfull(nameof(Delete), typeof(Patient).Name);
                 response.StatusCode = System.Net.HttpStatusCode.OK;
                 return response;
             }
 
-            response.Message = "Something went wrong";
+            response.Message = ResponseMessages.SomethingWentWrong;
             response.Respone = false;
             response.StatusCode = System.Net.HttpStatusCode.InternalServerError;
             return response;
@@ -103,7 +102,7 @@ namespace PearlyWhites.BL.Services
             if (patients is null)
             {
                 response.StatusCode = System.Net.HttpStatusCode.InternalServerError;
-                response.Message = "Something went wrong";
+                response.Message = ResponseMessages.SomethingWentWrong;
                 response.Respone = null;
                 return response;
             }
@@ -111,7 +110,7 @@ namespace PearlyWhites.BL.Services
             var tasks = patients.Select(x => GetTeethForPatient(x, response));
             await Task.WhenAll(tasks);
 
-            response.Message += "Patients loaded";
+            response.Message += ResponseMessages.Success;
             response.StatusCode = System.Net.HttpStatusCode.OK;
             response.Respone = patients;
             return response;
@@ -124,7 +123,7 @@ namespace PearlyWhites.BL.Services
             if (id <= 0)
             {
                 response.StatusCode = System.Net.HttpStatusCode.BadRequest;
-                response.Message = "Id cannot be 0 or less";
+                response.Message = ResponseMessages.FalseId;
                 return response;
             }
 
@@ -132,7 +131,7 @@ namespace PearlyWhites.BL.Services
             if (patient is null)
             {
                 response.StatusCode = System.Net.HttpStatusCode.NotFound;
-                response.Message = "Patient not found";
+                response.Message = ResponseMessages.NotFound(typeof(Patient).Name);
                 response.Respone = null;
                 return response;
             }
@@ -144,17 +143,17 @@ namespace PearlyWhites.BL.Services
             }
             else
             {
-                response.Message = $"Teeth can not be loaded for Patient with ID {patient.Id}";
+                response.Message = ResponseMessages.CantLoad(typeof(Tooth).Name, typeof(Patient).Name, patient.Id);
             }
 
-            response.Message += "Patient loaded";
+            response.Message += ResponseMessages.Success;
             response.Respone = patient;
             response.StatusCode = System.Net.HttpStatusCode.OK;
 
             return response;
         }
 
-        public async Task<BaseResponse<Patient>> UpdatePatient(PatientUpdateRequest patientReq)
+        public async Task<BaseResponse<Patient>> Update(PatientUpdateRequest patientReq)
         {
             var response = new BaseResponse<Patient>();
             var patient = _mapper.Map<Patient>(patientReq);
@@ -163,18 +162,18 @@ namespace PearlyWhites.BL.Services
             if (toUp is null)
             {
                 response.StatusCode = System.Net.HttpStatusCode.NotFound;
-                response.Message = "Patient not found";
+                response.Message = ResponseMessages.NotFound(typeof(Patient).Name);
                 response.Respone = null;
                 return response;
             }
             var updated = await _patientRepository.UpdatePatient(patient);
             if (updated is null)
             {
-                response.Message = "Something went wrong";
+                response.Message = ResponseMessages.SomethingWentWrong;
                 response.StatusCode = System.Net.HttpStatusCode.InternalServerError;
                 return response;
             }
-            response.Message = "Patient updated";
+            response.Message = ResponseMessages.Successfull(nameof(Update), typeof(Patient).Name);
             response.Respone = updated;
             response.StatusCode = System.Net.HttpStatusCode.OK;
             return response;
@@ -202,12 +201,12 @@ namespace PearlyWhites.BL.Services
             var treatment = await _treatmentRepository.GetTreatmentById(treatmentId);
             if (treatment is null)
             {
-                response.Message += $"Treatment with ID {treatmentId} dose not exist. Treatment did not add to tooth with ID {createdTooth.Id};";
+                response.Message = ResponseMessages.CantLoad(typeof(Treatment).Name, typeof(Tooth).Name, createdTooth.Id);
                 response.Message += Environment.NewLine;
                 return;
             }
             createdTooth.Treatments.Add(treatment);
-            await _tethAndTreatmentRepository.Create(treatmentId, createdTooth.Id);
+            await _tethAndTreatmentRepository.Create(treatmentId, createdTooth.Id, null);
         }
 
         private async Task GetTeethForPatient(Patient patient, BaseResponse<IEnumerable<Patient>> response)
@@ -215,7 +214,7 @@ namespace PearlyWhites.BL.Services
             var teeth = await _toothRepository.GetPatientTeeth(patient.Id);
             if (teeth is null)
             {
-                response.Message += $"Teeth for Patient with id {patient.Id} not found; ";
+                response.Message += ResponseMessages.CantLoad(typeof(Tooth).Name, typeof(Patient).Name, patient.Id);
                 return;
             }
             patient.Teeth = teeth.ToList();

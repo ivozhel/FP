@@ -1,7 +1,9 @@
-﻿namespace PearlyWhites.BL.Services.Producers
+﻿using PearlyWhites.Models.Models.Responses;
+
+namespace PearlyWhites.BL.Services.Producers
 {
     public interface IReportProducer
     {
-        public Task<string> DailyReport(DateTime date);
+        public Task<BaseResponse<string>> DailyReport(DateTime date, string address);
     }
 }

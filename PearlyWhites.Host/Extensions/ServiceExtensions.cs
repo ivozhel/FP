@@ -3,7 +3,6 @@ using PearlyWhites.BL.Services.Interfaces;
 using PearlyWhites.BL.Services.Producers;
 using PearlyWhites.DL.Repositories;
 using PearlyWhites.DL.Repositories.Interfaces;
-using PearlyWhites.Models.Models.Requests;
 
 namespace PearlyWhites.Host.Extensions
 {
@@ -23,6 +22,7 @@ namespace PearlyWhites.Host.Extensions
             services.AddSingleton<IPatientService, PatientService>();
             services.AddSingleton<IToothService, ToothService>();
             services.AddSingleton<IReportProducer, ReportProducer>();
+            services.AddSingleton<IReportService, ReportService>();
 
             return services;
         }

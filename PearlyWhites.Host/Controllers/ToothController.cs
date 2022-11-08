@@ -34,7 +34,10 @@ namespace PearlyWhites.Host.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Update(ToothUpdateRequest tooth)
         {
-            var response = await _toothService.UpdateTooth(tooth);
+            var location = new Uri($"{Request.Scheme}://{Request.Host}");
+            var clinicName = location.AbsoluteUri;
+
+            var response = await _toothService.Update(tooth, clinicName);
             return StatusCode((int)response.StatusCode, response.Message);
         }
     }
