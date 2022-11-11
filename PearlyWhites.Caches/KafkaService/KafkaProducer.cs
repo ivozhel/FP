@@ -5,7 +5,7 @@ using PearlyWhites.Models.Models.Configurations;
 
 namespace PearlyWhites.Caches.KafkaService
 {
-    public class KafkaProducer<TKey,TValue>
+    public class KafkaProducer<TKey, TValue>
     {
         private readonly ProducerConfig _producerConfig;
         private readonly IOptions<KafkaConfiguration> _kafkaSettings;
@@ -20,7 +20,7 @@ namespace PearlyWhites.Caches.KafkaService
 
         public async Task Produce(TValue value, TKey key)
         {
-            var producer = new ProducerBuilder<TKey,TValue>(_producerConfig).SetValueSerializer(new SerializerGen<TValue>())
+            var producer = new ProducerBuilder<TKey, TValue>(_producerConfig).SetValueSerializer(new SerializerGen<TValue>())
                                                                             .SetKeySerializer(new SerializerGen<TKey>()).Build();
             var msg = new Message<TKey, TValue>()
             {

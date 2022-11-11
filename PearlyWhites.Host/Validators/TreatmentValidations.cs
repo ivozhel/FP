@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using PearlyWhites.Models.Models.Requests;
+using PearlyWhites.Models.Models.Requests.Visit;
 
 namespace PearlyWhites.Host.Validators
 {

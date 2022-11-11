@@ -10,7 +10,7 @@ namespace PearlyWhites.Models.Models.KafkaModels
         [Key(1)]
         public string Name { get; set; }
         [Key(2)]
-        public IEnumerable<int> DailyTreatmentIds { get; set; }
+        public IEnumerable<Guid> DailyVisitIds { get; set; }
         [Key(3)]
         public DateTime Date { get; set; }
     }

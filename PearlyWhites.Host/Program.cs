@@ -37,12 +37,18 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddSwaggerGen(c =>
 {
-    c.ExampleFilters(); 
+    c.ExampleFilters();
 });
 builder.Services.AddSwaggerExamplesFromAssemblyOf<PatientSwaggerExample>();
 
 builder.Services.Configure<KafkaConfiguration>(
     builder.Configuration.GetSection(nameof(KafkaConfiguration)));
+
+builder.Services.Configure<MongoDBTeethConfiguration>(
+    builder.Configuration.GetSection(nameof(MongoDBTeethConfiguration)));
+
+builder.Services.Configure<MongoDBVisitsConfiguration>(
+    builder.Configuration.GetSection(nameof(MongoDBVisitsConfiguration)));
 
 builder.Services.AddHostedService<ReportConsumeHostedService>();
 
