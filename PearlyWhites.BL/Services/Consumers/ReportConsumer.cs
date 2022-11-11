@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Options;
 using PearlyWhites.Caches.KafkaService;
 using PearlyWhites.DL.Repositories.Interfaces;
+using PearlyWhites.DL.Repositories.MongoRepos.Interfaces;
 using PearlyWhites.Models.Models;
 using PearlyWhites.Models.Models.Configurations;
 using PearlyWhites.Models.Models.KafkaModels;
@@ -13,17 +14,17 @@ namespace PearlyWhites.BL.Services.Consumers
         private IOptions<KafkaConfiguration> _options;
         private readonly TransformBlock<KafkaReport, Report> _reportTransformBlock;
         private readonly ActionBlock<Report> actionBlock;
-        private readonly ITreatmentsRepository _treatmentsRepository;
+        private readonly IVisitRepository _visitRepository;
         private readonly IReportRepository _reportRepository;
-        public ReportConsumer(IOptions<KafkaConfiguration> options, ITreatmentsRepository treatmentsRepository, IReportRepository reportRepository) : base(options)
+        public ReportConsumer(IOptions<KafkaConfiguration> options, IVisitRepository visitRepository, IReportRepository reportRepository) : base(options)
         {
-            _treatmentsRepository = treatmentsRepository;
+            _visitRepository = visitRepository;
             _reportRepository = reportRepository;
             _options = options;
             _reportTransformBlock = new TransformBlock<KafkaReport, Report>(async rep =>
             {
-                var treatmentIds = rep.DailyTreatmentIds;
-                var tasks = treatmentIds.Select(x => TreatmentPrices(x));
+                var visitIds = rep.DailyVisitIds;
+                var tasks = visitIds.Select(x => GetVisitPaidAmount(x));
                 var prices = await Task.WhenAll(tasks);
                 var total = prices.Sum();
 
@@ -56,14 +57,11 @@ namespace PearlyWhites.BL.Services.Consumers
             return Task.CompletedTask;
         }
 
-        private async Task<decimal> TreatmentPrices(int treatmentId)
+        private async Task<decimal> GetVisitPaidAmount(Guid visitId)
         {
-            var treatment = await _treatmentsRepository.GetTreatmentById(treatmentId);
-            if (treatment is null)
-            {
-                return 0;
-            }
-            return treatment.Price;
+            var visit = await _visitRepository.GetVisitById(visitId);
+            return visit.Paid;
         }
+
     }
 }

@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using PearlyWhites.BL.Services.Interfaces;
 using PearlyWhites.Host.Extensions.SwaggerExamples;
-using PearlyWhites.Models.Models;
 using PearlyWhites.Models.Models.Requests.Patient;
 using Swashbuckle.AspNetCore.Filters;
 

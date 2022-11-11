@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
 using PearlyWhites.BL.Services.Interfaces;
 using PearlyWhites.DL.Repositories.Interfaces;
+using PearlyWhites.DL.Repositories.MongoRepos.Interfaces;
 using PearlyWhites.Models.Models;
+using PearlyWhites.Models.Models.Mongo;
 using PearlyWhites.Models.Models.Requests.Patient;
 using PearlyWhites.Models.Models.Requests.Tooth;
 using PearlyWhites.Models.Models.Responses;
@@ -11,18 +13,16 @@ namespace PearlyWhites.BL.Services
 {
     public class PatientService : IPatientService
     {
-        private readonly IToothRepository _toothRepository;
         private readonly IPatientRepository _patientRepository;
         private readonly IMapper _mapper;
-        private readonly ITeethAndTreatmentRepository _tethAndTreatmentRepository;
         private readonly ITreatmentsRepository _treatmentRepository;
-        public PatientService(IPatientRepository patientRepository, IMapper mapper, IToothRepository toothRepository, ITeethAndTreatmentRepository tethAndTreatmentRepository, ITreatmentsRepository treatmentRepository)
+        private readonly ITeethRepository _teethRepository;
+        public PatientService(IPatientRepository patientRepository, IMapper mapper, ITreatmentsRepository treatmentRepository, ITeethRepository teethRepository)
         {
             _patientRepository = patientRepository;
             _mapper = mapper;
-            _toothRepository = toothRepository;
-            _tethAndTreatmentRepository = tethAndTreatmentRepository;
             _treatmentRepository = treatmentRepository;
+            _teethRepository = teethRepository;
         }
 
         public async Task<BaseResponse<Patient>> Create(PatientRequest patient)
@@ -39,20 +39,25 @@ namespace PearlyWhites.BL.Services
                 return response;
             }
 
-            var tasks = patient.Teeth.Select(x => CreateTeeth(x, created, response));
+            var tasksForTeeth = patient.Teeth.Select(x => AddTreatments(x));
+            var patientTeeth = await Task.WhenAll(tasksForTeeth);
+            var teethToCreate = new Teeth() { PatientId = created.Id, TeethList = patientTeeth.ToList() };
+            foreach (var tooth in teethToCreate.TeethList)
+            {
+                tooth.Id = Guid.NewGuid();
+            }
+            var teeth = await _teethRepository.Create(teethToCreate);
 
-            var result = await Task.WhenAll(tasks);
-
-            if (result.Any(x => x == false))
+            if (teeth is null)
             {
                 await Delete(created.Id);
                 response.StatusCode = System.Net.HttpStatusCode.BadRequest;
                 response.Message = ResponseMessages.SomethingWentWrong;
                 return response;
             }
-
+            created.Teeth = teeth.TeethList;
             response.StatusCode = System.Net.HttpStatusCode.OK;
-            response.Message += ResponseMessages.Successfull(nameof(Create),typeof(Patient).Name);
+            response.Message += ResponseMessages.Successfull(nameof(Create), typeof(Patient).Name);
             response.Respone = created;
             return response;
         }
@@ -76,10 +81,10 @@ namespace PearlyWhites.BL.Services
                 response.Respone = false;
                 return response;
             }
-            var isPatientTeethDeleted = await _toothRepository.DeletePatientTeeth(id);
+
             var isPatientDeleted = await _patientRepository.DeletePatientById(id);
 
-            if (isPatientDeleted && isPatientTeethDeleted)
+            if (isPatientDeleted)
             {
                 response.Respone = true;
                 response.Message = ResponseMessages.Successfull(nameof(Delete), typeof(Patient).Name);
@@ -106,6 +111,7 @@ namespace PearlyWhites.BL.Services
                 response.Respone = null;
                 return response;
             }
+
 
             var tasks = patients.Select(x => GetTeethForPatient(x, response));
             await Task.WhenAll(tasks);
@@ -136,7 +142,7 @@ namespace PearlyWhites.BL.Services
                 return response;
             }
 
-            var teeth = await _toothRepository.GetPatientTeeth(patient.Id);
+            var teeth = await _teethRepository.GetPatientTeeth(patient.Id);
             if (teeth is not null)
             {
                 patient.Teeth = teeth.ToList();
@@ -173,45 +179,40 @@ namespace PearlyWhites.BL.Services
                 response.StatusCode = System.Net.HttpStatusCode.InternalServerError;
                 return response;
             }
+
+            var teeth = await _teethRepository.GetPatientTeeth(patient.Id);
+            if (teeth is not null)
+            {
+                updated.Teeth = teeth.ToList();
+            }
+            else
+            {
+                response.Message = ResponseMessages.CantLoad(typeof(Tooth).Name, typeof(Patient).Name, patient.Id);
+            }
             response.Message = ResponseMessages.Successfull(nameof(Update), typeof(Patient).Name);
             response.Respone = updated;
             response.StatusCode = System.Net.HttpStatusCode.OK;
             return response;
-
         }
 
-        private async Task<bool> CreateTeeth(ToothRequest tooth, Patient created, BaseResponse<Patient> response)
+        private async Task<Tooth> AddTreatments(ToothRequest tooth)
         {
             var toothToCreate = _mapper.Map<Tooth>(tooth);
-            toothToCreate.PatientId = created.Id;
-            var createdTooth = await _toothRepository.Create(toothToCreate);
-            if (createdTooth is null)
-            {
-                return false;
-            }
-            var tasks = tooth.TreatmentIds.Select(x => AddTreatments(response, x, createdTooth));
+            var tasks = tooth.TreatmentIds.Select(x => GetTreatments(x, toothToCreate));
             await Task.WhenAll(tasks);
 
-            created.Teeth.Add(createdTooth);
-            return true;
+            return toothToCreate;
         }
 
-        private async Task AddTreatments(BaseResponse<Patient> response, int treatmentId, Tooth createdTooth)
+        private async Task GetTreatments(int treatmentId, Tooth createdTooth)
         {
             var treatment = await _treatmentRepository.GetTreatmentById(treatmentId);
-            if (treatment is null)
-            {
-                response.Message = ResponseMessages.CantLoad(typeof(Treatment).Name, typeof(Tooth).Name, createdTooth.Id);
-                response.Message += Environment.NewLine;
-                return;
-            }
             createdTooth.Treatments.Add(treatment);
-            await _tethAndTreatmentRepository.Create(treatmentId, createdTooth.Id, null);
         }
 
         private async Task GetTeethForPatient(Patient patient, BaseResponse<IEnumerable<Patient>> response)
         {
-            var teeth = await _toothRepository.GetPatientTeeth(patient.Id);
+            var teeth = await _teethRepository.GetPatientTeeth(patient.Id);
             if (teeth is null)
             {
                 response.Message += ResponseMessages.CantLoad(typeof(Tooth).Name, typeof(Patient).Name, patient.Id);

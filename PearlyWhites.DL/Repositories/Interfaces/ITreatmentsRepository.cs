@@ -1,5 +1,5 @@
 ﻿using PearlyWhites.Models.Models;
-using PearlyWhites.Models.Models.Requests;
+using PearlyWhites.Models.Models.Requests.Visit;
 
 namespace PearlyWhites.DL.Repositories.Interfaces
 {

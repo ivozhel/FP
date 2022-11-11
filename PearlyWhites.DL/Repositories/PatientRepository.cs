@@ -25,10 +25,10 @@ namespace PearlyWhites.DL.Repositories
                 await using (var conn = new SqlConnection(_configuration.GetConnectionString("DefaultConnection")))
                 {
                     var query = "SELECT * FROM Patients WITH(NOLOCK) WHERE IsDeleted = 0";
-                    await conn.OpenAsync();                    
+                    await conn.OpenAsync();
                     var patients = await conn.QueryAsync<Patient>(query);
                     return patients;
-                    
+
                 }
             }
             catch (Exception e)
@@ -105,7 +105,7 @@ namespace PearlyWhites.DL.Repositories
             try
             {
                 await using (var conn = new SqlConnection(_configuration.GetConnectionString("DefaultConnection")))
-                { 
+                {
                     await conn.OpenAsync();
                     var created = await conn.QueryFirstOrDefaultAsync<Patient>("INSERT INTO Patients output INSERTED.* VALUES (@Name, @Age,@IsDeleted)",
                         new { Name = patient.Name, Age = patient.Age, IsDeleted = 0 });

@@ -1,10 +1,10 @@
-﻿using Microsoft.Extensions.Configuration;
-using System.Data.SqlClient;
+﻿using System.Data.SqlClient;
+using Dapper;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using PearlyWhites.DL.Repositories.Interfaces;
 using PearlyWhites.Models.Models;
-using Microsoft.Extensions.Logging;
-using Dapper;
-using PearlyWhites.Models.Models.Requests;
+using PearlyWhites.Models.Models.Requests.Visit;
 
 namespace PearlyWhites.DL.Repositories
 {
@@ -107,7 +107,7 @@ namespace PearlyWhites.DL.Repositories
                 {
                     await conn.OpenAsync();
                     var updatedPatient = await conn.QueryFirstOrDefaultAsync<Treatment>("UPDATE Treatments SET Name = @Name, Price = @Price, Description = @Description output INSERTED.* WHERE Id = @Id AND IsDeleted = 0",
-                        new {Id = treatment.Id, Name = treatment.Name, Price = treatment.Price, Description = treatment.Description });
+                        new { Id = treatment.Id, Name = treatment.Name, Price = treatment.Price, Description = treatment.Description });
                     return updatedPatient;
                 }
             }

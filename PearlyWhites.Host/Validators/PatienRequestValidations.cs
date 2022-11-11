@@ -7,8 +7,8 @@ namespace PearlyWhites.Host.Validators
     {
         public PatienRequestValidations()
         {
-            RuleFor(x=>x.Age).NotEmpty().GreaterThan(0).LessThan(200);
-            RuleFor(x => x.Name).NotEmpty().MaximumLength(100).MinimumLength(2);  
+            RuleFor(x => x.Age).NotEmpty().GreaterThan(0).LessThan(200);
+            RuleFor(x => x.Name).NotEmpty().MaximumLength(100).MinimumLength(2);
         }
     }
 }

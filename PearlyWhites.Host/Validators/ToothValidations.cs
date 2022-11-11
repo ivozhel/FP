@@ -7,7 +7,7 @@ namespace PearlyWhites.Host.Validators
     {
         public ToothValidations()
         {
-            RuleFor(x=>x.Name).NotEmpty();
+            RuleFor(x => x.Name).NotEmpty();
             RuleFor(x => x.Position).NotEmpty();
             //RuleFor(x => x.TreatmentIds).Empty();
 

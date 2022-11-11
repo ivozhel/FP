@@ -1,4 +1,4 @@
-﻿namespace PearlyWhites.Models.Models.Requests
+﻿namespace PearlyWhites.Models.Models.Requests.Visit
 {
     public record TreatmentRequest
     {

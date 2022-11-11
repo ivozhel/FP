@@ -7,9 +7,9 @@ namespace PearlyWhites.Host.Extensions
     {
         public static IApplicationBuilder RegisterHealthChecks(this IApplicationBuilder app)
         {
-            return app.UseHealthChecks("/healthz",new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions()
+            return app.UseHealthChecks("/healthz", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions()
             {
-                ResponseWriter = async (context,report) =>
+                ResponseWriter = async (context, report) =>
                 {
                     context.Response.ContentType = "application/json";
                     var response = new HealthCheckResponse()
@@ -23,7 +23,7 @@ namespace PearlyWhites.Host.Extensions
                         }),
                         HealthCheckDuration = report.TotalDuration
                     };
-                    await context.Response.WriteAsync(JsonConvert.SerializeObject(response,Formatting.Indented));
+                    await context.Response.WriteAsync(JsonConvert.SerializeObject(response, Formatting.Indented));
                 }
             });
         }

@@ -1,22 +1,23 @@
 ﻿using Microsoft.Extensions.Options;
 using PearlyWhites.Caches.KafkaService;
 using PearlyWhites.DL.Repositories.Interfaces;
+using PearlyWhites.DL.Repositories.MongoRepos.Interfaces;
 using PearlyWhites.Models.Models.Configurations;
 using PearlyWhites.Models.Models.KafkaModels;
 using PearlyWhites.Models.Models.Responses;
 
 namespace PearlyWhites.BL.Services.Producers
 {
-    public class ReportProducer : KafkaProducer<Guid, KafkaReport> , IReportProducer
+    public class ReportProducer : KafkaProducer<Guid, KafkaReport>, IReportProducer
     {
-        private readonly ITeethAndTreatmentRepository _teethAndTreatmentRepository;
+        private readonly IVisitRepository _visitRepository;
         private readonly IOptions<KafkaConfiguration> _options;
         private readonly IReportRepository _reportRepository;
-        public ReportProducer(IOptions<KafkaConfiguration> options, ITeethAndTreatmentRepository teethAndTreatmentRepository, IReportRepository reportRepository) : base(options)
+        public ReportProducer(IOptions<KafkaConfiguration> options, IReportRepository reportRepository, IVisitRepository visitRepository) : base(options)
         {
             _options = options;
-            _teethAndTreatmentRepository = teethAndTreatmentRepository;
             _reportRepository = reportRepository;
+            _visitRepository = visitRepository;
         }
 
         public async Task<BaseResponse<string>> DailyReport(DateTime date, string address)
@@ -26,11 +27,13 @@ namespace PearlyWhites.BL.Services.Producers
             {
                 Id = Guid.NewGuid()
             };
-            var dayliTreatments = await _teethAndTreatmentRepository.GetTreatmentDayliReport(date,address);
+
+            var dayVisits = await _visitRepository.GetAllOnDate(date, address);
+
 
             report.Date = date;
             report.Name = address;
-            report.DailyTreatmentIds = dayliTreatments;
+            report.DailyVisitIds = dayVisits.Select(x => x.Id);
 
             var ifAlreadySend = await _reportRepository.CheckIfExists(report.Name, report.Date);
             if (ifAlreadySend)
@@ -40,7 +43,7 @@ namespace PearlyWhites.BL.Services.Producers
                 return response;
             }
 
-            await base.Produce( report, report.Id);
+            await base.Produce(report, report.Id);
             response.Respone = "Report succesfully send";
             response.StatusCode = System.Net.HttpStatusCode.OK;
             return response;

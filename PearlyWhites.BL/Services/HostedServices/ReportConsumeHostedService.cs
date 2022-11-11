@@ -3,6 +3,7 @@ using Microsoft.Extensions.Options;
 using PearlyWhites.BL.Services.Consumers;
 using PearlyWhites.Caches.KafkaService;
 using PearlyWhites.DL.Repositories.Interfaces;
+using PearlyWhites.DL.Repositories.MongoRepos.Interfaces;
 using PearlyWhites.Models.Models.Configurations;
 using PearlyWhites.Models.Models.KafkaModels;
 
@@ -12,14 +13,14 @@ namespace PearlyWhites.BL.Services.HostedServices
     {
         private readonly KafkaConsumer<Guid, KafkaReport> _reportConsumer;
         private readonly IOptions<KafkaConfiguration> _options;
-        private readonly ITreatmentsRepository _treatmentsRepository;
+        private readonly IVisitRepository _visitRepository;
         private readonly IReportRepository _reportRepository;
-        public ReportConsumeHostedService(IOptions<KafkaConfiguration> options, ITreatmentsRepository treatmentsRepository, IReportRepository reportRepository)
+        public ReportConsumeHostedService(IOptions<KafkaConfiguration> options, IVisitRepository visitRepository, IReportRepository reportRepository)
         {
-            _treatmentsRepository = treatmentsRepository;
+            _visitRepository = visitRepository;
             _reportRepository = reportRepository;
             _options = options;
-            _reportConsumer = new ReportConsumer(_options, _treatmentsRepository, _reportRepository);
+            _reportConsumer = new ReportConsumer(_options, _visitRepository, _reportRepository);
         }
         public Task StartAsync(CancellationToken cancellationToken)
         {

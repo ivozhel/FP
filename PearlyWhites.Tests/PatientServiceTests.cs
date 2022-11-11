@@ -2,8 +2,10 @@ using AutoMapper;
 using Moq;
 using PearlyWhites.BL.Services;
 using PearlyWhites.DL.Repositories.Interfaces;
+using PearlyWhites.DL.Repositories.MongoRepos.Interfaces;
 using PearlyWhites.Host.AutoMapper;
 using PearlyWhites.Models.Models;
+using PearlyWhites.Models.Models.Mongo;
 using PearlyWhites.Models.Models.Requests.Patient;
 
 namespace PearlyWhites.Tests
@@ -38,10 +40,9 @@ namespace PearlyWhites.Tests
         };
 
         private readonly IMapper _mapper;
-        private readonly Mock<IToothRepository> _toothRepository;
         private readonly Mock<IPatientRepository> _patientRepository;
-        private readonly Mock<ITeethAndTreatmentRepository> _teethAndTreatmentRepository;
         private readonly Mock<ITreatmentsRepository> _treatmentRepository;
+        private readonly Mock<ITeethRepository> _teethRepository;
 
         public PatientServiceTests()
         {
@@ -51,10 +52,9 @@ namespace PearlyWhites.Tests
             });
 
             _mapper = mockMapConfig.CreateMapper();
-            _toothRepository = new Mock<IToothRepository>();
             _patientRepository = new Mock<IPatientRepository>();
-            _teethAndTreatmentRepository = new Mock<ITeethAndTreatmentRepository>();
             _treatmentRepository = new Mock<ITreatmentsRepository>();
+            _teethRepository = new Mock<ITeethRepository>();
         }
 
         [Fact]
@@ -65,7 +65,7 @@ namespace PearlyWhites.Tests
             _patientRepository.Setup(x => x.GetAllPatients()).ReturnsAsync(_patients);
 
             //inject 
-            var service = new PatientService(_patientRepository.Object, _mapper, _toothRepository.Object, _teethAndTreatmentRepository.Object, _treatmentRepository.Object);
+            var service = new PatientService(_patientRepository.Object, _mapper, _treatmentRepository.Object, _teethRepository.Object);
 
             //act
             var result = await service.GetAllPatients();
@@ -75,7 +75,7 @@ namespace PearlyWhites.Tests
             Assert.NotNull(response);
             Assert.NotEmpty(response);
             Assert.Equal(expectedCount, response.Count());
-            Assert.Equal(200,(int)result.StatusCode);
+            Assert.Equal(200, (int)result.StatusCode);
 
         }
         [Fact]
@@ -85,7 +85,7 @@ namespace PearlyWhites.Tests
             _patientRepository.Setup(x => x.GetAllPatients()).ReturnsAsync((IEnumerable<Patient>)null);
 
             //inject 
-            var service = new PatientService(_patientRepository.Object, _mapper, _toothRepository.Object, _teethAndTreatmentRepository.Object, _treatmentRepository.Object);
+            var service = new PatientService(_patientRepository.Object, _mapper, _treatmentRepository.Object, _teethRepository.Object);
 
             //act
             var result = await service.GetAllPatients();
@@ -98,12 +98,12 @@ namespace PearlyWhites.Tests
         public async Task Patient_GetById()
         {
             //setup
-            var patientId = _patients.First().Id;            
+            var patientId = _patients.First().Id;
             var patient = _patients.FirstOrDefault(x => x.Id == patientId);
             _patientRepository.Setup(x => x.GetPatientById(patientId)).ReturnsAsync(patient);
 
             //inject
-            var service = new PatientService(_patientRepository.Object, _mapper, _toothRepository.Object, _teethAndTreatmentRepository.Object, _treatmentRepository.Object);
+            var service = new PatientService(_patientRepository.Object, _mapper, _treatmentRepository.Object, _teethRepository.Object);
 
             //act
             var result = await service.GetPatientById(patientId);
@@ -123,7 +123,7 @@ namespace PearlyWhites.Tests
             _patientRepository.Setup(x => x.GetPatientById(patientId)).ReturnsAsync((Patient)null);
 
             //inject
-            var service = new PatientService(_patientRepository.Object, _mapper, _toothRepository.Object, _teethAndTreatmentRepository.Object, _treatmentRepository.Object);
+            var service = new PatientService(_patientRepository.Object, _mapper, _treatmentRepository.Object, _teethRepository.Object);
 
             //act
             var result = await service.GetPatientById(patientId);
@@ -138,7 +138,7 @@ namespace PearlyWhites.Tests
             //setup
 
             //inject
-            var service = new PatientService(_patientRepository.Object, _mapper, _toothRepository.Object, _teethAndTreatmentRepository.Object, _treatmentRepository.Object);
+            var service = new PatientService(_patientRepository.Object, _mapper, _treatmentRepository.Object, _teethRepository.Object);
 
             //act
             var result = await service.GetPatientById(0);
@@ -160,9 +160,10 @@ namespace PearlyWhites.Tests
             };
 
             _patientRepository.Setup(x => x.Create(It.IsAny<Patient>())).ReturnsAsync(patient);
+            _teethRepository.Setup(x => x.Create(It.IsAny<Teeth>())).ReturnsAsync(new Teeth());
 
             //inject
-            var service = new PatientService(_patientRepository.Object, _mapper, _toothRepository.Object, _teethAndTreatmentRepository.Object, _treatmentRepository.Object);
+            var service = new PatientService(_patientRepository.Object, _mapper, _treatmentRepository.Object, _teethRepository.Object);
 
             //act
             var patientReq = new PatientRequest()
@@ -184,10 +185,10 @@ namespace PearlyWhites.Tests
         public async Task Patient_Create_Error()
         {
             //setup
-            _patientRepository.Setup(x => x.Create(It.IsAny<Patient>())).ReturnsAsync((Patient) null);
+            _patientRepository.Setup(x => x.Create(It.IsAny<Patient>())).ReturnsAsync((Patient)null);
 
             //inject
-            var service = new PatientService(_patientRepository.Object, _mapper, _toothRepository.Object, _teethAndTreatmentRepository.Object, _treatmentRepository.Object);
+            var service = new PatientService(_patientRepository.Object, _mapper, _treatmentRepository.Object, _teethRepository.Object);
 
             //act
             var patientReq = new PatientRequest();
@@ -203,12 +204,12 @@ namespace PearlyWhites.Tests
         {
             //setup
             var deleteId = _patients.First().Id;
-            _patientRepository.Setup(x=>x.DeletePatientById(It.IsAny<int>())).ReturnsAsync(true);
+            _patientRepository.Setup(x => x.DeletePatientById(It.IsAny<int>())).ReturnsAsync(true);
             _patientRepository.Setup(x => x.GetPatientById(It.IsAny<int>())).ReturnsAsync(new Patient());
-            _toothRepository.Setup(x => x.DeletePatientTeeth(It.IsAny<int>())).ReturnsAsync(true);
+            //_toothRepository.Setup(x => x.DeletePatientTeeth(It.IsAny<int>())).ReturnsAsync(true);
 
             //inject
-            var service = new PatientService(_patientRepository.Object, _mapper, _toothRepository.Object, _teethAndTreatmentRepository.Object, _treatmentRepository.Object);
+            var service = new PatientService(_patientRepository.Object, _mapper, _treatmentRepository.Object, _teethRepository.Object);
 
             //act
             var result = await service.Delete(deleteId);
@@ -228,7 +229,7 @@ namespace PearlyWhites.Tests
             _patientRepository.Setup(x => x.GetPatientById(It.IsAny<int>())).ReturnsAsync((Patient)null);
 
             //inject
-            var service = new PatientService(_patientRepository.Object, _mapper, _toothRepository.Object, _teethAndTreatmentRepository.Object, _treatmentRepository.Object);
+            var service = new PatientService(_patientRepository.Object, _mapper, _treatmentRepository.Object, _teethRepository.Object);
 
             //act
             var result = await service.Delete(deleteId);
@@ -246,7 +247,7 @@ namespace PearlyWhites.Tests
             var deleteId = 0;
 
             //inject
-            var service = new PatientService(_patientRepository.Object, _mapper, _toothRepository.Object, _teethAndTreatmentRepository.Object, _treatmentRepository.Object);
+            var service = new PatientService(_patientRepository.Object, _mapper, _treatmentRepository.Object, _teethRepository.Object);
 
             //act
             var result = await service.Delete(deleteId);
@@ -262,16 +263,15 @@ namespace PearlyWhites.Tests
         {
             //setup
             var deleteId = _patients.First().Id;
-            _patientRepository.Setup(x => x.DeletePatientById(It.IsAny<int>())).ReturnsAsync(true);
+            _patientRepository.Setup(x => x.DeletePatientById(It.IsAny<int>())).ReturnsAsync(false);
             _patientRepository.Setup(x => x.GetPatientById(It.IsAny<int>())).ReturnsAsync(new Patient());
-            _toothRepository.Setup(x => x.DeletePatientTeeth(It.IsAny<int>())).ReturnsAsync(false);
 
             //inject
-            var service = new PatientService(_patientRepository.Object, _mapper, _toothRepository.Object, _teethAndTreatmentRepository.Object, _treatmentRepository.Object);
+            var service = new PatientService(_patientRepository.Object, _mapper, _treatmentRepository.Object, _teethRepository.Object);
 
             //act
             var result = await service.Delete(deleteId);
-  
+
             //assert
             Assert.NotNull(result);
             Assert.Equal(System.Net.HttpStatusCode.InternalServerError, result.StatusCode);
@@ -287,17 +287,17 @@ namespace PearlyWhites.Tests
                 Name = "Test",
                 Age = 20
             };
-            
+
             _patientRepository.Setup(x => x.GetPatientById(It.IsAny<int>())).ReturnsAsync(() => _patients.FirstOrDefault(x => x.Id == expectedID));
 
-            _patientRepository.Setup(x => x.UpdatePatient(It.IsAny<Patient>())).ReturnsAsync(new Patient() { Name = patientRequest.Name, Age = patientRequest.Age});
+            _patientRepository.Setup(x => x.UpdatePatient(It.IsAny<Patient>())).ReturnsAsync(new Patient() { Name = patientRequest.Name, Age = patientRequest.Age });
 
             //infect 
-            var service = new PatientService(_patientRepository.Object, _mapper, _toothRepository.Object, _teethAndTreatmentRepository.Object, _treatmentRepository.Object);
+            var service = new PatientService(_patientRepository.Object, _mapper, _treatmentRepository.Object, _teethRepository.Object);
 
             //act
             var result = await service.Update(patientRequest);
-            
+
             //assert
             Assert.NotNull(result);
             Assert.Equal(patientRequest.Name, result.Respone.Name);
@@ -312,7 +312,7 @@ namespace PearlyWhites.Tests
             _patientRepository.Setup(x => x.GetPatientById(It.IsAny<int>())).ReturnsAsync((Patient)null);
 
             //infect 
-            var service = new PatientService(_patientRepository.Object, _mapper, _toothRepository.Object, _teethAndTreatmentRepository.Object, _treatmentRepository.Object);
+            var service = new PatientService(_patientRepository.Object, _mapper, _treatmentRepository.Object, _teethRepository.Object);
 
             //act
             var result = await service.Update(new PatientUpdateRequest() { Id = It.IsAny<int>() });
@@ -329,7 +329,7 @@ namespace PearlyWhites.Tests
             _patientRepository.Setup(x => x.UpdatePatient(It.IsAny<Patient>())).ReturnsAsync((Patient)null);
 
             //infect 
-            var service = new PatientService(_patientRepository.Object, _mapper, _toothRepository.Object, _teethAndTreatmentRepository.Object, _treatmentRepository.Object);
+            var service = new PatientService(_patientRepository.Object, _mapper, _treatmentRepository.Object, _teethRepository.Object);
 
             //act
             var result = await service.Update(new PatientUpdateRequest() { Id = It.IsAny<int>() });

@@ -20,7 +20,7 @@ namespace PearlyWhites.BL.CommandHandlers
         {
             var response = new BaseResponse<Treatment>();
             var toUp = await _treatmentsRepository.GetTreatmentById(request.treatment.Id);
-            
+
             if (toUp is null)
             {
                 response.StatusCode = System.Net.HttpStatusCode.NotFound;

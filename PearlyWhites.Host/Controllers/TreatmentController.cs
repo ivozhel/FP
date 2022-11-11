@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using PearlyWhites.Models.Models;
 using PearlyWhites.Models.Models.MediatRCommands.Treatments;
-using PearlyWhites.Models.Models.Requests;
+using PearlyWhites.Models.Models.Requests.Visit;
 
 namespace PearlyWhites.Host.Controllers
 {
